@@ -1,246 +1,233 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>情報科指導法I</title>
-<style>
-  :root{
-    --bg:#f9f9f9; --card:#fff; --primary:#0078d7; --primary-dark:#005a9e;
-    --text:#222; --muted:#666;
-  }
-  html,body{height:100%; margin:0; padding:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN",Meiryo, sans-serif;}
-  body{padding:12px; font-size:18px; line-height:1.6; -webkit-font-smoothing:antialiased;}
-  header{max-width:900px; margin:0 auto;}
-  h1{font-size:1.6rem; text-align:center; margin:8px 0 12px;}
-  .container{max-width:900px; margin:0 auto;}
-  .card{background:var(--card); border-radius:10px; padding:12px; box-shadow:0 1px 2px rgba(0,0,0,0.04); margin-bottom:12px;}
-  .tag-btn{display:block; width:100%; text-align:center; padding:14px; margin:8px 0; border-radius:8px; border:1px solid #ddd; background:transparent; font-size:1.05rem;}
-  .tag-btn:active{transform:translateY(1px);}
-  #quiz{display:none;}
-  #question{font-size:1.15rem; margin:6px 0 10px;}
-  #options{list-style:none; padding:0; margin:0;}
-  #options li{margin-bottom:8px;}
-  #options button{width:100%; padding:14px; border-radius:8px; border:1px solid #ddd; background:var(--card); text-align:left; font-size:1.03rem;}
-  #options button[disabled]{opacity:0.75;}
-  #options button.correct{background:#e6ffea; border-color:#b8efc3;}
-  #options button.wrong{background:#ffecec; border-color:#f3b3b3;}
-  #progress{font-size:0.95rem; color:var(--muted); text-align:center; margin:10px 0;}
-  #nextBtn{display:none; width:100%; background:var(--primary); color:#fff; border:none; padding:12px; border-radius:8px; font-size:1.05rem;}
-  #nextBtn:active{background:var(--primary-dark);}
-  #result{display:none;}
-  p.explain{color:var(--muted); margin:8px 0 0; font-size:0.97rem;}
-  .small{font-size:0.9rem; color:var(--muted);}
-  @media(min-width:720px){
-    body{padding:20px;}
-    h1{font-size:1.9rem;}
-    .tag-btn{max-width:480px; margin-left:auto; margin-right:auto;}
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>情報科指導法I</title>
+  <style>
+    :root{
+      --bg:#f9f9f9; --card:#fff; --primary:#0078d7; --primary-dark:#005a9e;
+      --text:#222; --muted:#666;
+    }
+    html,body{height:100%; margin:0; padding:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN",Meiryo, sans-serif;}
+    body{padding:12px; font-size:18px; line-height:1.6; -webkit-font-smoothing:antialiased;}
+    header{max-width:900px; margin:0 auto;}
+    h1{font-size:1.6rem; text-align:center; margin:8px 0 12px;}
+    .container{max-width:900px; margin:0 auto;}
+    .card{background:var(--card); border-radius:10px; padding:12px; box-shadow:0 1px 2px rgba(0,0,0,0.04); margin-bottom:12px;}
+    .tag-btn{display:block; width:100%; text-align:center; padding:14px; margin:8px 0; border-radius:8px; border:1px solid #ddd; background:transparent; font-size:1.05rem;}
+    .tag-btn:active{transform:translateY(1px);}
+    #quiz{display:none;}
+    #question{font-size:1.15rem; margin:6px 0 10px;}
+    #options{list-style:none; padding:0; margin:0;}
+    #options li{margin-bottom:8px;}
+    #options button{width:100%; padding:14px; border-radius:8px; border:1px solid #ddd; background:var(--card); text-align:left; font-size:1.03rem;}
+    #options button[disabled]{opacity:0.75;}
+    #options button.correct{background:#e6ffea; border-color:#b8efc3;}
+    #options button.wrong{background:#ffecec; border-color:#f3b3b3;}
+    #progress{font-size:0.95rem; color:var(--muted); text-align:center; margin:10px 0;}
+    #nextBtn{display:none; width:100%; background:var(--primary); color:#fff; border:none; padding:12px; border-radius:8px; font-size:1.05rem;}
+    #nextBtn:active{background:var(--primary-dark);}
+    #result{display:none;}
+    p.explain{color:var(--muted); margin:8px 0 0; font-size:0.97rem;}
+    .small{font-size:0.9rem; color:var(--muted);}
+    @media(min-width:720px){
+      body{padding:20px;}
+      h1{font-size:1.9rem;}
+      .tag-btn{max-width:480px; margin-left:auto; margin-right:auto;}
+    }
+  </style>
 </head>
 <body>
-<header>
-  <h1 id="mainTitle">情報科指導法I</h1>
-</header>
+  <header>
+    <h1 id="mainTitle">情報科指導法I</h1>
+  </header>
 
-<main class="container">
-  <div id="controls" class="card">
-    <button class="tag-btn" data-tag="info01">01.情報とその特性</button>
-    <button class="tag-btn" data-tag="info02">02.メディアとその特性</button>
-    <button class="tag-btn" data-tag="info03">03.問題を解決する方法</button>
-    <button class="tag-btn" data-tag="info04">04.情報の収集と分析</button>
-    <button class="tag-btn" data-tag="info05">05.解決方法の考察</button>
-  </div>
+  <main class="container">
+    <div id="controls" class="card">
+      <button class="tag-btn" data-tag="info01">01.情報とその特性</button>
+      <button class="tag-btn" data-tag="info02">02.メディアとその特性</button>
+      <button class="tag-btn" data-tag="info03">03.問題を解決する方法</button>
+      <button class="tag-btn" data-tag="info04">04.情報の収集と分析</button>
+      <button class="tag-btn" data-tag="info05">05.解決方法の考察</button>
+    </div>
 
-  <div id="quiz" class="card" aria-live="polite">
-    <div id="question"></div>
-    <ul id="options"></ul>
-    <div id="progress"></div>
-    <button id="nextBtn">次へ ▶</button>
-  </div>
+    <div id="quiz" class="card" aria-live="polite">
+      <div id="question"></div>
+      <ul id="options"></ul>
+      <div id="progress"></div>
+      <button id="nextBtn">次へ ▶</button>
+    </div>
 
-  <div id="result" class="card"></div>
-</main>
+    <div id="result" class="card"></div>
+  </main>
 
-<script>
-/* 設定 */
-const QUESTIONS_PER_SUBJECT = 5;
-const CSV_MAP = {
-  info01: 'info01.csv',
-  info02: 'info02.csv',
-  info03: 'info03.csv',
-  info04: 'info04.csv',
-  info05: 'info05.csv'
-};
+  <script>
+    /* 設定 */
+    const QUESTIONS_PER_SUBJECT = 5;
+    const CSV_MAP = {
+      info01: 'info01.csv',
+      info02: 'info02.csv',
+      info03: 'info03.csv',
+      info04: 'info04.csv',
+      info05: 'info05.csv'
+    };
 
-/* 状態 */
-let questions = [], current = 0, score = 0, currentTag = '';
+    /* 状態 */
+    let questions = [], current = 0, score = 0, currentTag = '';
 
-/* DOM */
-const controlsEl = document.getElementById('controls');
-const quizEl = document.getElementById('quiz');
-const questionEl = document.getElementById('question');
-const optionsEl = document.getElementById('options');
-const progressEl = document.getElementById('progress');
-const nextBtn = document.getElementById('nextBtn');
-const resultEl = document.getElementById('result');
-const mainTitle = document.getElementById('mainTitle');
+    /* DOM */
+    const controlsEl = document.getElementById('controls');
+    const quizEl = document.getElementById('quiz');
+    const questionEl = document.getElementById('question');
+    const optionsEl = document.getElementById('options');
+    const progressEl = document.getElementById('progress');
+    const nextBtn = document.getElementById('nextBtn');
+    const resultEl = document.getElementById('result');
+    const mainTitle = document.getElementById('mainTitle');
 
-/* イベント登録 */
-document.querySelectorAll('.tag-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=> startQuiz(btn.dataset.tag));
-});
+    /* イベント登録 */
+    document.querySelectorAll('.tag-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=> startQuiz(btn.dataset.tag));
+    });
 
-/* ユーティリティ */
-function shuffle(arr){
-  for(let i=arr.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
+    /* ユーティリティ */
+    function shuffle(arr){
+      for(let i=arr.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
 
-/* 選択肢シャッフル（正解インデックスを追従） */
-function shuffleOptions(q){
-  const mapped = q.options.map((opt, idx) => ({opt, idx}));
-  shuffle(mapped);
-  q.options = mapped.map(m => m.opt);
-  q.answer = mapped.findIndex(m => m.idx === q.answer);
-  return q;
-}
+    /* 選択肢シャッフル（正解インデックスを追従） */
+    function shuffleOptions(q){
+      const mapped = q.options.map((opt, idx) => ({opt, idx}));
+      shuffle(mapped);
+      q.options = mapped.map(m => m.opt);
+      q.answer = mapped.findIndex(m => m.idx === q.answer);
+      return q;
+    }
 
-/* CSV読み込み（BOM除去・空行スキップ・最小列チェック・fetchエラーハンドリング） */
-async function loadCSV(file){
-  try{
-    const res = await fetch(file);
-    if(!res.ok) throw new Error('CSV fetch failed: ' + res.status);
-    let text = await res.text();
-    if(text.charCodeAt(0) === 0xFEFF) text = text.slice(1); // BOM除去
-    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-    if(lines.length <= 1) return []; // ヘッダのみ or 空
-    const rows = lines.slice(1).map(line=>{
-      // 簡易カンマ分割（実運用でカンマを含むフィールドがある場合はクォート対応パーサへ移行）
-      const c = line.split(',');
-      // 必要列: id(0) question(1) option1-4(2-5) answer(6) explanation(7)
-      if(c.length < 7) return null;
-      const opts = [c[2]||'', c[3]||'', c[4]||'', c[5]||''].map(s => s.trim());
-      // 正解番号が不正なら安全に1にフォールバック
-      let ans = parseInt((c[6]||'1').trim(),10);
-      if(isNaN(ans) || ans < 1 || ans > 4) ans = 1;
-      return {
-        q: (c[1]||'').trim() || '（問題文がありません）',
-        options: opts,
-        answer: ans - 1, // 0-based
-        explanation: (c[7]||'').trim()
+    /* CSV読み込み */
+    async function loadCSV(file){
+      const res = await fetch(file);
+      if(!res.ok) throw new Error('CSV fetch failed: ' + res.status);
+      let text = await res.text();
+      if(text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      if(lines.length <= 1) return [];
+      return lines.slice(1).map(line => {
+        const c = line.split(',');
+        if(c.length < 7) return null;
+        const opts = [c[2]||'', c[3]||'', c[4]||'', c[5]||''].map(s=>s.trim());
+        let ans = parseInt((c[6]||'1').trim(),10);
+        if(isNaN(ans)||ans<1||ans>4) ans = 1;
+        return {
+          q: (c[1]||'').trim() || '（問題文がありません）',
+          options: opts,
+          answer: ans-1,
+          explanation: (c[7]||'').trim()
+        };
+      }).filter(Boolean);
+    }
+
+    /* クイズ開始 */
+    async function startQuiz(tag){
+      currentTag = tag;
+      controlsEl.style.display = 'none';
+      resultEl.style.display = 'none';
+      quizEl.style.display = 'none';
+      mainTitle.style.display = 'none';
+
+      try {
+        const pool = await loadCSV(CSV_MAP[tag]);
+        if(!pool.length){
+          alert('問題が読み込めませんでした。CSVを確認してください。');
+          controlsEl.style.display = '';
+          mainTitle.style.display = '';
+          return;
+        }
+        questions = shuffle(pool).slice(0, QUESTIONS_PER_SUBJECT).map(shuffleOptions);
+        current = 0;
+        score = 0;
+        quizEl.style.display = '';
+        showQuestion();
+      } catch (e) {
+        alert('問題の読み込みに失敗しました。ネットワークまたはファイル名を確認してください。');
+        controlsEl.style.display = '';
+        mainTitle.style.display = '';
+      }
+    }
+
+    /* 問題表示 */
+    function showQuestion(){
+      const q = questions[current];
+      questionEl.textContent = q.q;
+      optionsEl.innerHTML = '';
+      q.options.forEach((opt,i)=>{
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.innerHTML = opt || '（選択肢がありません）';
+        btn.addEventListener('click', ()=> selectAnswer(i));
+        li.appendChild(btn);
+        optionsEl.appendChild(li);
+      });
+      progressEl.textContent = `${current+1}/${questions.length}`;
+      nextBtn.style.display = 'none';
+    }
+
+    /* 回答処理 */
+    function selectAnswer(idx){
+      const q = questions[current];
+      const btns = Array.from(optionsEl.querySelectorAll('button'));
+      btns.forEach((b,i)=>{
+        b.disabled = true;
+        b.classList.remove('correct','wrong');
+        if(i===q.answer) b.classList.add('correct');
+        if(i===idx && i!==q.answer) b.classList.add('wrong');
+      });
+
+      const msg = document.createElement('p');
+      msg.innerHTML = idx===q.answer
+        ? '<span style="color:green">🟢 正解！</span>'
+        : `<span style="color:red">❌ 不正解</span><br><span style="color:var(--muted)">正解: ${q.options[q.answer]}</span>`;
+      msg.className = 'explain';
+      const exp = document.createElement('p');
+      exp.className = 'explain';
+      exp.textContent = q.explanation ? '解説: ' + q.explanation : '';
+
+      quizEl.appendChild(msg);
+      if(exp.textContent) quizEl.appendChild(exp);
+      if(idx===q.answer) score++;
+
+      nextBtn.style.display = 'block';
+      nextBtn.onclick = ()=>{
+        msg.remove();
+        exp.remove();
+        nextBtn.style.display = 'none';
+        current++;
+        if(current<questions.length) showQuestion();
+        else showResults();
       };
-    }).filter(Boolean);
-    return rows;
-  }catch(err){
-    console.error(err);
-    throw err;
-  }
-}
+    }
 
-/* クイズ開始 */
-async function startQuiz(tag){
-  currentTag = tag;
-  controlsEl.style.display = 'none';
-  resultEl.style.display = 'none';
-  quizEl.style.display = 'none';
-  mainTitle.style.display = 'none';
-  // ローディング表示（シンプル）
-  controlsEl.insertAdjacentHTML('afterend','<div id="loading" class="card small">問題を読み込んでいます…</div>');
-  try{
-    const pool = await loadCSV(CSV_MAP[tag]);
-    document.getElementById('loading')?.remove();
-    if(!pool || pool.length === 0){
-      alert('問題が読み込めませんでした。CSVを確認してください。');
+    /* 結果表示 */
+    function showResults(){
+      quizEl.style.display = 'none';
+      resultEl.innerHTML = `<h2>結果: ${score}/${questions.length}</h2>
+        <p class="small">選択した科目: ${currentTag}</p>
+        <p class="small">※ ページ左上のタイトルをタップして別科目を選択してください</p>`;
+      resultEl.style.display = '';
       controlsEl.style.display = '';
       mainTitle.style.display = '';
-      return;
     }
-    // 抽出とシャッフル、選択肢シャッフル
-    questions = shuffle(pool).slice(0, QUESTIONS_PER_SUBJECT).map(shuffleOptions);
-    current = 0; score = 0;
-    quizEl.style.display = '';
-    showQuestion();
-  }catch(e){
-    document.getElementById('loading')?.remove();
-    alert('問題の読み込みに失敗しました。ネットワークまたはファイル名を確認してください。');
-    controlsEl.style.display = '';
-    mainTitle.style.display = '';
-  }
-}
 
-/* 問題表示 */
-function showQuestion(){
-  const q = questions[current];
-  questionEl.textContent = q.q;
-  optionsEl.innerHTML = '';
-  // 選択肢が空白の場合はプレースホルダを入れる
-  q.options.forEach((opt, i)=>{
-    const li = document.createElement('li');
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.innerHTML = opt || '（選択肢がありません）';
-    btn.addEventListener('click', ()=> selectAnswer(i));
-    li.appendChild(btn);
-    optionsEl.appendChild(li);
-  });
-  progressEl.textContent = `${current+1}/${questions.length}`;
-  nextBtn.style.display = 'none';
-}
-
-/* 回答処理 */
-function selectAnswer(idx){
-  const q = questions[current];
-  // disable buttons and mark colors
-  const btns = Array.from(optionsEl.querySelectorAll('button'));
-  btns.forEach((b, i)=>{
-    b.disabled = true;
-    b.classList.remove('correct','wrong');
-    if(i === q.answer) b.classList.add('correct');
-    if(i === idx && i !== q.answer) b.classList.add('wrong');
-  });
-  // フィードバック表示
-  const msg = document.createElement('p');
-  msg.innerHTML = (idx === q.answer) ? '<span style="color:green">🟢 正解！</span>' : `<span style="color:red">❌ 不正解</span><br><span style="color:var(--muted)">正解: ${q.options[q.answer]}</span>`;
-  msg.className = 'explain';
-  const exp = document.createElement('p');
-  exp.className = 'explain';
-  exp.textContent = q.explanation ? '解説: ' + q.explanation : '';
-  quizEl.appendChild(msg);
-  if(exp.textContent) quizEl.appendChild(exp);
-  if(idx === q.answer) score++;
-  // 次へ表示
-  nextBtn.style.display = 'block';
-  nextBtn.onclick = ()=>{
-    // remove feedback nodes (msg and exp) safely
-    msg.remove();
-    exp.remove();
-    nextBtn.style.display = 'none';
-    // advance or finish
-    current++;
-    if(current < questions.length) showQuestion();
-    else showResults();
-  };
-}
-
-/* 結果表示（再挑戦ボタン無し） */
-function showResults(){
-  quizEl.style.display = 'none';
-  resultEl.innerHTML = `<h2>結果: ${score}/${questions.length}</h2>
-    <p class="small">選択した科目: ${currentTag}</p>
-    <p class="small">※ ページ左上のタイトルをタップして別科目を選択してください</p>`;
-  resultEl.style.display = '';
-  controlsEl.style.display = '';
-  mainTitle.style.display = '';
-}
-
-/* ページ読み込み時の軽微な安全処理 */
-window.addEventListener('error', (e)=>{
-  console.error('Unhandled error', e);
-});
-</script>
+    window.addEventListener('error', e=>{
+      console.error('Unhandled error', e);
+    });
+  </script>
 </body>
 </html>
+```
