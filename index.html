@@ -9,7 +9,7 @@
       --bg:#f9f9f9; --card:#fff; --primary:#0078d7; --primary-dark:#005a9e;
       --text:#222; --muted:#666;
     }
-    html,body{height:100%; margin:0; padding:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN",Meiryo, sans-serif;}
+    html,body{height:100%; margin:0; padding:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;}
     body{padding:12px; font-size:18px; line-height:1.6; -webkit-font-smoothing:antialiased;}
     header{max-width:900px; margin:0 auto;}
     h1{font-size:1.6rem; text-align:center; margin:8px 0 12px;}
@@ -87,22 +87,22 @@
     const mainTitle = document.getElementById('mainTitle');
 
     /* イベント登録 */
-    document.querySelectorAll('.tag-btn').forEach(btn=>{
-      btn.addEventListener('click', ()=> startQuiz(btn.dataset.tag));
+    document.querySelectorAll('.tag-btn').forEach(btn => {
+      btn.addEventListener('click', () => startQuiz(btn.dataset.tag));
     });
 
-    /* ユーティリティ */
-    function shuffle(arr){
-      for(let i=arr.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
+    /* シャッフル */
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
         [arr[i], arr[j]] = [arr[j], arr[i]];
       }
       return arr;
     }
 
-    /* 選択肢シャッフル（正解インデックスを追従） */
-    function shuffleOptions(q){
-      const mapped = q.options.map((opt, idx) => ({opt, idx}));
+    /* 選択肢シャッフル */
+    function shuffleOptions(q) {
+      const mapped = q.options.map((opt, idx) => ({ opt, idx }));
       shuffle(mapped);
       q.options = mapped.map(m => m.opt);
       q.answer = mapped.findIndex(m => m.idx === q.answer);
@@ -110,111 +110,110 @@
     }
 
     /* CSV読み込み */
-    async function loadCSV(file){
+    async function loadCSV(file) {
       const res = await fetch(file);
-      if(!res.ok) throw new Error('CSV fetch failed: ' + res.status);
+      if (!res.ok) {
+        console.error('CSV fetch failed:', res.status);
+        return [];
+      }
       let text = await res.text();
-      if(text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
       const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-      if(lines.length <= 1) return [];
+      if (lines.length <= 1) return [];
       return lines.slice(1).map(line => {
         const c = line.split(',');
-        if(c.length < 7) return null;
-        const opts = [c[2]||'', c[3]||'', c[4]||'', c[5]||''].map(s=>s.trim());
-        let ans = parseInt((c[6]||'1').trim(),10);
-        if(isNaN(ans)||ans<1||ans>4) ans = 1;
+        if (c.length < 7) return null;
+        const opts = [c[2]||'', c[3]||'', c[4]||'', c[5]||''].map(s => s.trim());
+        let ans = parseInt((c[6]||'1').trim(), 10);
+        if (isNaN(ans) || ans < 1 || ans > 4) ans = 1;
         return {
           q: (c[1]||'').trim() || '（問題文がありません）',
           options: opts,
-          answer: ans-1,
+          answer: ans - 1,
           explanation: (c[7]||'').trim()
         };
       }).filter(Boolean);
     }
 
     /* クイズ開始 */
-    async function startQuiz(tag){
+    async function startQuiz(tag) {
       currentTag = tag;
       controlsEl.style.display = 'none';
-      resultEl.style.display = 'none';
       quizEl.style.display = 'none';
+      resultEl.style.display = 'none';
       mainTitle.style.display = 'none';
 
-      try {
-        const pool = await loadCSV(CSV_MAP[tag]);
-        if(!pool.length){
-          alert('問題が読み込めませんでした。CSVを確認してください。');
-          controlsEl.style.display = '';
-          mainTitle.style.display = '';
-          return;
-        }
-        questions = shuffle(pool).slice(0, QUESTIONS_PER_SUBJECT).map(shuffleOptions);
-        current = 0;
-        score = 0;
-        quizEl.style.display = '';
-        showQuestion();
-      } catch (e) {
-        alert('問題の読み込みに失敗しました。ネットワークまたはファイル名を確認してください。');
+      const pool = await loadCSV(CSV_MAP[tag]);
+      if (!pool.length) {
+        console.error('問題が読み込めませんでした。CSVを確認してください。');
         controlsEl.style.display = '';
         mainTitle.style.display = '';
+        return;
       }
+
+      questions = shuffle(pool).slice(0, QUESTIONS_PER_SUBJECT).map(shuffleOptions);
+      current = 0;
+      score = 0;
+      quizEl.style.display = '';
+      showQuestion();
     }
 
     /* 問題表示 */
-    function showQuestion(){
+    function showQuestion() {
       const q = questions[current];
       questionEl.textContent = q.q;
       optionsEl.innerHTML = '';
-      q.options.forEach((opt,i)=>{
+      q.options.forEach((opt, i) => {
         const li = document.createElement('li');
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.innerHTML = opt || '（選択肢がありません）';
-        btn.addEventListener('click', ()=> selectAnswer(i));
+        btn.addEventListener('click', () => selectAnswer(i));
         li.appendChild(btn);
         optionsEl.appendChild(li);
       });
-      progressEl.textContent = `${current+1}/${questions.length}`;
+      progressEl.textContent = `${current + 1}/${questions.length}`;
       nextBtn.style.display = 'none';
     }
 
     /* 回答処理 */
-    function selectAnswer(idx){
+    function selectAnswer(idx) {
       const q = questions[current];
       const btns = Array.from(optionsEl.querySelectorAll('button'));
-      btns.forEach((b,i)=>{
+      btns.forEach((b, i) => {
         b.disabled = true;
-        b.classList.remove('correct','wrong');
-        if(i===q.answer) b.classList.add('correct');
-        if(i===idx && i!==q.answer) b.classList.add('wrong');
+        b.classList.remove('correct', 'wrong');
+        if (i === q.answer) b.classList.add('correct');
+        if (i === idx && i !== q.answer) b.classList.add('wrong');
       });
 
       const msg = document.createElement('p');
-      msg.innerHTML = idx===q.answer
+      msg.innerHTML = idx === q.answer
         ? '<span style="color:green">🟢 正解！</span>'
         : `<span style="color:red">❌ 不正解</span><br><span style="color:var(--muted)">正解: ${q.options[q.answer]}</span>`;
       msg.className = 'explain';
+
       const exp = document.createElement('p');
       exp.className = 'explain';
       exp.textContent = q.explanation ? '解説: ' + q.explanation : '';
 
       quizEl.appendChild(msg);
-      if(exp.textContent) quizEl.appendChild(exp);
-      if(idx===q.answer) score++;
+      if (exp.textContent) quizEl.appendChild(exp);
+      if (idx === q.answer) score++;
 
       nextBtn.style.display = 'block';
-      nextBtn.onclick = ()=>{
+      nextBtn.onclick = () => {
         msg.remove();
         exp.remove();
         nextBtn.style.display = 'none';
         current++;
-        if(current<questions.length) showQuestion();
+        if (current < questions.length) showQuestion();
         else showResults();
       };
     }
 
     /* 結果表示 */
-    function showResults(){
+    function showResults() {
       quizEl.style.display = 'none';
       resultEl.innerHTML = `<h2>結果: ${score}/${questions.length}</h2>
         <p class="small">選択した科目: ${currentTag}</p>
@@ -224,7 +223,7 @@
       mainTitle.style.display = '';
     }
 
-    window.addEventListener('error', e=>{
+    window.addEventListener('error', e => {
       console.error('Unhandled error', e);
     });
   </script>
