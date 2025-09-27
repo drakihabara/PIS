@@ -23,7 +23,7 @@
   #options li{margin-bottom:8px;}
   #options button{width:100%; padding:14px; border-radius:8px; border:1px solid #ddd; background:var(--card); text-align:left; font-size:1.03rem;}
   #options button[disabled]{opacity:0.75;}
-  #options button.correct{background: #e6ffea; border-color: #b8efc3;}
+  #options button.correct{background:#e6ffea; border-color:#b8efc3;}
   #options button.wrong{background:#ffecec; border-color:#f3b3b3;}
   #progress{font-size:0.95rem; color:var(--muted); text-align:center; margin:10px 0;}
   #nextBtn{display:none; width:100%; background:var(--primary); color:#fff; border:none; padding:12px; border-radius:8px; font-size:1.05rem;}
@@ -50,7 +50,6 @@
     <button class="tag-btn" data-tag="info03">03.問題を解決する方法</button>
     <button class="tag-btn" data-tag="info04">04.情報の収集と分析</button>
     <button class="tag-btn" data-tag="info05">05.解決方法の考察</button>
-    <p class="small">※ 各科目20問でランダム出題、選択肢もランダム化されます</p>
   </div>
 
   <div id="quiz" class="card" aria-live="polite">
@@ -65,7 +64,7 @@
 
 <script>
 /* 設定 */
-const QUESTIONS_PER_SUBJECT = 20;
+const QUESTIONS_PER_SUBJECT = 5;
 const CSV_MAP = {
   info01: 'info01.csv',
   info02: 'info02.csv',
@@ -245,4 +244,3 @@ window.addEventListener('error', (e)=>{
 </script>
 </body>
 </html>
-```
