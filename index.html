@@ -9,32 +9,36 @@
       --bg:#f9f9f9; --card:#fff; --primary:#0078d7; --primary-dark:#005a9e;
       --text:#222; --muted:#666;
     }
-    html,body{height:100%; margin:0; padding:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;}
-    body{padding:12px; font-size:18px; line-height:1.6; -webkit-font-smoothing:antialiased;}
-    header{max-width:900px; margin:0 auto;}
-    h1{font-size:1.6rem; text-align:center; margin:8px 0 12px;}
-    .container{max-width:900px; margin:0 auto;}
-    .card{background:var(--card); border-radius:10px; padding:12px; box-shadow:0 1px 2px rgba(0,0,0,0.04); margin-bottom:12px;}
-    .tag-btn{display:block; width:100%; text-align:center; padding:14px; margin:8px 0; border-radius:8px; border:1px solid #ddd; background:transparent; font-size:1.05rem;}
-    .tag-btn:active{transform:translateY(1px);}
-    #quiz{display:none;}
-    #question{font-size:1.15rem; margin:6px 0 10px;}
-    #options{list-style:none; padding:0; margin:0;}
-    #options li{margin-bottom:8px;}
-    #options button{width:100%; padding:14px; border-radius:8px; border:1px solid #ddd; background:var(--card); text-align:left; font-size:1.03rem;}
-    #options button[disabled]{opacity:0.75;}
-    #options button.correct{background:#e6ffea; border-color:#b8efc3;}
-    #options button.wrong{background:#ffecec; border-color:#f3b3b3;}
-    #progress{font-size:0.95rem; color:var(--muted); text-align:center; margin:10px 0;}
-    #nextBtn{display:none; width:100%; background:var(--primary); color:#fff; border:none; padding:12px; border-radius:8px; font-size:1.05rem;}
-    #nextBtn:active{background:var(--primary-dark);}
-    #result{display:none;}
-    p.explain{color:var(--muted); margin:8px 0 0; font-size:0.97rem;}
-    .small{font-size:0.9rem; color:var(--muted);}
+    html, body {
+      height:100%; margin:0; padding:0;
+      background:var(--bg); color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;
+    }
+    body { padding:12px; font-size:18px; line-height:1.6; }
+    header { max-width:900px; margin:0 auto; }
+    h1 { font-size:1.6rem; text-align:center; margin:8px 0 12px; }
+    .container { max-width:900px; margin:0 auto; }
+    .card { background:var(--card); border-radius:10px; padding:12px; box-shadow:0 1px 2px rgba(0,0,0,0.04); margin-bottom:12px; }
+    .tag-btn { display:block; width:100%; text-align:center; padding:14px; margin:8px 0; border-radius:8px; border:1px solid #ddd; background:transparent; font-size:1.05rem; }
+    .tag-btn:active { transform:translateY(1px); }
+    #quiz { display:none; }
+    #question { font-size:1.15rem; margin:6px 0 10px; }
+    #options { list-style:none; padding:0; margin:0; }
+    #options li { margin-bottom:8px; }
+    #options button { width:100%; padding:14px; border-radius:8px; border:1px solid #ddd; background:var(--card); text-align:left; font-size:1.03rem; }
+    #options button[disabled]{ opacity:0.75; }
+    #options button.correct{ background:#e6ffea; border-color:#b8efc3; }
+    #options button.wrong{ background:#ffecec; border-color:#f3b3b3; }
+    #progress { font-size:0.95rem; color:var(--muted); text-align:center; margin:10px 0; }
+    #nextBtn { display:none; width:100%; background:var(--primary); color:#fff; border:none; padding:12px; border-radius:8px; font-size:1.05rem; }
+    #nextBtn:active { background:var(--primary-dark); }
+    #result { display:none; }
+    p.explain { color:var(--muted); margin:8px 0 0; font-size:0.97rem; }
+    .small { font-size:0.9rem; color:var(--muted); }
     @media(min-width:720px){
       body{padding:20px;}
       h1{font-size:1.9rem;}
-      .tag-btn{max-width:480px; margin-left:auto; margin-right:auto;}
+      .tag-btn{max-width:480px;margin:0 auto;}
     }
   </style>
 </head>
@@ -63,8 +67,7 @@
   </main>
 
   <script>
-    /* 設定 */
-    const QUESTIONS_PER_SUBJECT = 5;
+    const QUESTIONS_PER_SUBJECT = 3;
     const CSV_MAP = {
       info01: 'info01.csv',
       info02: 'info02.csv',
@@ -73,10 +76,8 @@
       info05: 'info05.csv'
     };
 
-    /* 状態 */
     let questions = [], current = 0, score = 0, currentTag = '';
 
-    /* DOM */
     const controlsEl = document.getElementById('controls');
     const quizEl = document.getElementById('quiz');
     const questionEl = document.getElementById('question');
@@ -86,12 +87,10 @@
     const resultEl = document.getElementById('result');
     const mainTitle = document.getElementById('mainTitle');
 
-    /* イベント登録 */
     document.querySelectorAll('.tag-btn').forEach(btn => {
       btn.addEventListener('click', () => startQuiz(btn.dataset.tag));
     });
 
-    /* シャッフル */
     function shuffle(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -100,7 +99,6 @@
       return arr;
     }
 
-    /* 選択肢シャッフル */
     function shuffleOptions(q) {
       const mapped = q.options.map((opt, idx) => ({ opt, idx }));
       shuffle(mapped);
@@ -109,13 +107,9 @@
       return q;
     }
 
-    /* CSV読み込み */
     async function loadCSV(file) {
       const res = await fetch(file);
-      if (!res.ok) {
-        console.error('CSV fetch failed:', res.status);
-        return [];
-      }
+      if (!res.ok) return [];
       let text = await res.text();
       if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
       const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
@@ -135,7 +129,6 @@
       }).filter(Boolean);
     }
 
-    /* クイズ開始 */
     async function startQuiz(tag) {
       currentTag = tag;
       controlsEl.style.display = 'none';
@@ -145,12 +138,11 @@
 
       const pool = await loadCSV(CSV_MAP[tag]);
       if (!pool.length) {
-        console.error('問題が読み込めませんでした。CSVを確認してください。');
+        // 何も表示せず元の状態に戻す
         controlsEl.style.display = '';
         mainTitle.style.display = '';
         return;
       }
-
       questions = shuffle(pool).slice(0, QUESTIONS_PER_SUBJECT).map(shuffleOptions);
       current = 0;
       score = 0;
@@ -158,9 +150,9 @@
       showQuestion();
     }
 
-    /* 問題表示 */
     function showQuestion() {
       const q = questions[current];
+      if (!q) { showResults(); return; }
       questionEl.textContent = q.q;
       optionsEl.innerHTML = '';
       q.options.forEach((opt, i) => {
@@ -176,7 +168,6 @@
       nextBtn.style.display = 'none';
     }
 
-    /* 回答処理 */
     function selectAnswer(idx) {
       const q = questions[current];
       const btns = Array.from(optionsEl.querySelectorAll('button'));
@@ -190,7 +181,8 @@
       const msg = document.createElement('p');
       msg.innerHTML = idx === q.answer
         ? '<span style="color:green">🟢 正解！</span>'
-        : `<span style="color:red">❌ 不正解</span><br><span style="color:var(--muted)">正解: ${q.options[q.answer]}</span>`;
+        : `<span style="color:red">❌ 不正解</span><br>
+           <span style="color:var(--muted)">正解: ${q.options[q.answer]}</span>`;
       msg.className = 'explain';
 
       const exp = document.createElement('p');
@@ -207,12 +199,14 @@
         exp.remove();
         nextBtn.style.display = 'none';
         current++;
-        if (current < questions.length) showQuestion();
-        else showResults();
+        if (current < questions.length) {
+          showQuestion();
+        } else {
+          showResults();
+        }
       };
     }
 
-    /* 結果表示 */
     function showResults() {
       quizEl.style.display = 'none';
       resultEl.innerHTML = `<h2>結果: ${score}/${questions.length}</h2>
@@ -222,10 +216,6 @@
       controlsEl.style.display = '';
       mainTitle.style.display = '';
     }
-
-    window.addEventListener('error', e => {
-      console.error('Unhandled error', e);
-    });
   </script>
 </body>
 </html>
