@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>情報科指導法I（ログ追加版）</title>
+  <title>情報科指導法I（修正版）</title>
   <style>
     :root{
       --bg:#f9f9f9; --card:#fff; --primary:#0078d7; --primary-dark:#005a9e;
@@ -87,15 +87,8 @@
     const resultEl = document.getElementById('result');
     const mainTitle = document.getElementById('mainTitle');
 
-    // イベント登録＋ログ
-    const btns = document.querySelectorAll('.tag-btn');
-    console.log('ボタン数:', btns.length);
-    btns.forEach(btn => {
-      console.log('ボタン登録:', btn.dataset.tag);
-      btn.addEventListener('click', () => {
-        console.log('クリック検知:', btn.dataset.tag);
-        startQuiz(btn.dataset.tag);
-      });
+    document.querySelectorAll('.tag-btn').forEach(btn => {
+      btn.addEventListener('click', () => startQuiz(btn.dataset.tag));
     });
 
     function shuffle(arr) {
@@ -114,27 +107,39 @@
       return q;
     }
 
-    async function loadCSV(file) {
-      console.time(`fetch:${file}`);
-      console.log('CSV取得開始:', file);
-      const res = await fetch(file);
-      console.timeEnd(`fetch:${file}`);
-      if (!res.ok) {
-        console.warn('CSV取得失敗 status=', res.status, 'file=', file);
-        return [];
+    // 引用対応の簡易CSVパーサ（ダブルクォートとカンマを処理）
+    function parseCSVLine(line){
+      const out = [];
+      let cur = '', inQ = false;
+      for(let i=0;i<line.length;i++){
+        const ch = line[i];
+        if(inQ){
+          if(ch === '"'){
+            if(line[i+1] === '"'){ cur += '"'; i++; } // エスケープされた引用
+            else { inQ = false; }
+          }else{
+            cur += ch;
+          }
+        }else{
+          if(ch === '"'){ inQ = true; }
+          else if(ch === ','){ out.push(cur.trim()); cur = ''; }
+          else { cur += ch; }
+        }
       }
+      out.push(cur.trim());
+      return out;
+    }
+
+    async function loadCSV(file) {
+      const res = await fetch(file);
+      if (!res.ok) return [];
       let text = await res.text();
-      // BOM除去
       if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
       const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-      console.log('CSV行数:', lines.length, 'file=', file);
       if (lines.length <= 1) return [];
-      const rows = lines.slice(1).map((line, idx) => {
-        const c = line.split(',');
-        if (c.length < 7) {
-          console.warn('列不足でスキップ 行=', idx+2, 'file=', file, 'cols=', c.length);
-          return null;
-        }
+      const rows = lines.slice(1).map(line => {
+        const c = parseCSVLine(line);
+        if (c.length < 7) return null;
         const opts = [c[2]||'', c[3]||'', c[4]||'', c[5]||''].map(s => s.trim());
         let ans = parseInt((c[6]||'1').trim(), 10);
         if (isNaN(ans) || ans < 1 || ans > 4) ans = 1;
@@ -145,47 +150,49 @@
           explanation: (c[7]||'').trim()
         };
       }).filter(Boolean);
-      console.log('CSVパース件数:', rows.length, 'file=', file);
       return rows;
     }
 
-    async function startQuiz(tag) {
-      console.log('▶ startQuiz:', tag);
-      currentTag = tag;
+    function dedupeByQuestion(arr){
+      const seen = new Set();
+      const out = [];
+      for(const item of arr){
+        const key = item.q;
+        if(!seen.has(key)){
+          seen.add(key);
+          out.push(item);
+        }
+      }
+      return out;
+    }
 
-      // UI切替ログ
-      console.log('UI: controls hide, titles hide');
+    async function startQuiz(tag) {
+      currentTag = tag;
       controlsEl.style.display = 'none';
       quizEl.style.display = 'none';
       resultEl.style.display = 'none';
       mainTitle.style.display = 'none';
 
       const pool = await loadCSV(CSV_MAP[tag]);
-      console.log('▷ 読み込んだ問題数:', pool.length, 'tag=', tag);
-
-      if (!pool.length) {
-        console.warn('問題プールが空。UIを復帰します。');
+      const unique = dedupeByQuestion(pool);
+      const take = Math.min(QUESTIONS_PER_SUBJECT, unique.length);
+      if (take === 0) {
+        // プールが空なら何もせず復帰
         controlsEl.style.display = '';
         mainTitle.style.display = '';
         return;
       }
-
-      questions = shuffle(pool).slice(0, QUESTIONS_PER_SUBJECT).map(shuffleOptions);
+      questions = shuffle(unique).slice(0, take).map(shuffleOptions);
       current = 0;
       score = 0;
-      console.table(questions.map((q, i) => ({ idx: i, q: q.q, answer: q.options[q.answer] })));
       quizEl.style.display = '';
       showQuestion();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function showQuestion() {
       const q = questions[current];
-      if (!q) {
-        console.warn('showQuestion: 質問が存在しません。結果表示へ移行。');
-        showResults();
-        return;
-      }
-      console.log(`● 出題 ${current+1}/${questions.length}:`, q.q);
+      if (!q) { showResults(); return; }
       questionEl.textContent = q.q;
       optionsEl.innerHTML = '';
       q.options.forEach((opt, i) => {
@@ -203,7 +210,6 @@
 
     function selectAnswer(idx) {
       const q = questions[current];
-      console.log('回答選択 idx=', idx, '正解=', q.answer, '選択肢=', q.options[idx]);
       const btns = Array.from(optionsEl.querySelectorAll('button'));
       btns.forEach((b, i) => {
         b.disabled = true;
@@ -215,7 +221,8 @@
       const msg = document.createElement('p');
       msg.innerHTML = idx === q.answer
         ? '<span style="color:green">🟢 正解！</span>'
-        : `<span style="color:red">❌ 不正解</span><br><span style="color:var(--muted)">正解: ${q.options[q.answer]}</span>`;
+        : `<span style="color:red">❌ 不正解</span><br>
+           <span style="color:var(--muted)">正解: ${q.options[q.answer]}</span>`;
       msg.className = 'explain';
 
       const exp = document.createElement('p');
@@ -224,20 +231,17 @@
 
       quizEl.appendChild(msg);
       if (exp.textContent) quizEl.appendChild(exp);
-      if (idx === q.answer) {
-        score++;
-        console.log('スコア加算:', score);
-      }
+      if (idx === q.answer) score++;
 
       nextBtn.style.display = 'block';
       nextBtn.onclick = () => {
-        console.log('次へ: 現在の問題を終了');
         msg.remove();
         exp.remove();
         nextBtn.style.display = 'none';
         current++;
         if (current < questions.length) {
           showQuestion();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
           showResults();
         }
@@ -245,7 +249,6 @@
     }
 
     function showResults() {
-      console.log('◆ 結果表示: score=', score, '/', questions.length, 'tag=', currentTag);
       quizEl.style.display = 'none';
       resultEl.innerHTML = `<h2>結果: ${score}/${questions.length}</h2>
         <p class="small">選択した科目: ${currentTag}</p>
@@ -253,11 +256,8 @@
       resultEl.style.display = '';
       controlsEl.style.display = '';
       mainTitle.style.display = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
-    window.addEventListener('error', e => {
-      console.error('Unhandled error:', e.message || e);
-    });
   </script>
 </body>
 </html>
